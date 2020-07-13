@@ -30,10 +30,13 @@ impl Chip8 {
     pub fn load_rom(&mut self, game_data: &Vec<u8>) {
         // The first 512 bytes are reserved for the interpreter
         // After that the ROM is loaded
-        let offset = 0x200;
-
         for idx in 0..game_data.len() {
-            self.ram.write_byte((offset + idx) as u16, game_data[idx]);
+            self.ram
+                .write_byte(cpu::PROGRAM_START + (idx as u16), game_data[idx]);
         }
+    }
+
+    pub fn run_operation(&mut self) {
+        self.cpu.process_operation(&mut self.ram);
     }
 }

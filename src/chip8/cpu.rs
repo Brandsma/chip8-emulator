@@ -1,13 +1,16 @@
-pub struct CPU {
-    // Memory
-    pub memory: [u8; 4096],
+use super::memory::RAM;
 
+// The program will always start at 0x200 (512)
+// Since the rest is reserved for the interpreter
+pub const PROGRAM_START: u16 = 0x200;
+
+pub struct CPU {
     // General purpose registers
     pub gp: [u8; 16],
-    // index register
-    pub i: u16,
     // Program counter register
     pub pc: u16,
+    // index register
+    pub i: u16,
 
     // Stack
     pub stack: [u16; 16],
@@ -26,10 +29,9 @@ pub struct CPU {
 impl CPU {
     pub fn new() -> CPU {
         CPU {
-            memory: [0; 4096],
             gp: [0; 16],
             i: 0,
-            pc: 0,
+            pc: PROGRAM_START,
             stack: [0; 16],
             sp: 0,
             dt: 0,
@@ -37,4 +39,6 @@ impl CPU {
             operand: 0,
         }
     }
+
+    pub fn process_operation(&mut self, memory: &mut RAM) {}
 }
