@@ -11,4 +11,9 @@ impl Display {
             gfx: [0; (64 * 32)],
         }
     }
+
+    // Clear screen
+    pub fn cls(&mut self) {
+        self.gfx.iter_mut().for_each(|x| *x = 0);
+    }
 }

@@ -17,8 +17,6 @@ fn main() {
     // Load the game into the RAM
     chip8.load_rom(&rom_data);
 
-    /* Main Game Loop */
-    loop {
-        chip8.run_operation();
-    }
+    // Start the chip8 machine
+    chip8.start();
 }
