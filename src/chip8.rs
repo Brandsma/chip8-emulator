@@ -85,10 +85,7 @@ impl event::EventHandler for Chip8 {
         _keymods: KeyMods,
         _repeat: bool,
     ) {
-        match get_key(keycode) {
-            Some(x) => self.bus.keypad.press_key(x as usize),
-            None => {}
-        };
+        self.bus.keypad.press_key(get_key(keycode));
     }
 
     fn key_up_event(&mut self, _ctx: &mut ggez::Context, _keycode: KeyCode, _keymods: KeyMods) {
@@ -96,27 +93,27 @@ impl event::EventHandler for Chip8 {
     }
 }
 
-fn get_key(key: KeyCode) -> Option<u8> {
+fn get_key(key: KeyCode) -> u8 {
     match key {
-        KeyCode::Key1 => Some(0x1),
-        KeyCode::Key2 => Some(0x2),
-        KeyCode::Key3 => Some(0x3),
-        KeyCode::Key4 => Some(0xC),
+        KeyCode::Key1 => 0x1,
+        KeyCode::Key2 => 0x2,
+        KeyCode::Key3 => 0x3,
+        KeyCode::Key4 => 0xC,
 
-        KeyCode::Q => Some(0x4),
-        KeyCode::W => Some(0x5),
-        KeyCode::E => Some(0x6),
-        KeyCode::R => Some(0xD),
+        KeyCode::Q => 0x4,
+        KeyCode::W => 0x5,
+        KeyCode::E => 0x6,
+        KeyCode::R => 0xD,
 
-        KeyCode::A => Some(0x7),
-        KeyCode::S => Some(0x8),
-        KeyCode::D => Some(0x9),
-        KeyCode::F => Some(0xE),
+        KeyCode::A => 0x7,
+        KeyCode::S => 0x8,
+        KeyCode::D => 0x9,
+        KeyCode::F => 0xE,
 
-        KeyCode::Z => Some(0xA),
-        KeyCode::X => Some(0x0),
-        KeyCode::C => Some(0xB),
-        KeyCode::V => Some(0xF),
-        _ => None,
+        KeyCode::Z => 0xA,
+        KeyCode::X => 0x0,
+        KeyCode::C => 0xB,
+        KeyCode::V => 0xF,
+        _ => 0xF,
     }
 }

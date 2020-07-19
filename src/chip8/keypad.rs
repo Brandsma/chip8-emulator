@@ -10,8 +10,8 @@ impl Keypad {
         }
     }
 
-    pub fn press_key(&mut self, key: usize) {
-        self.keypad[key] = true;
+    pub fn press_key(&mut self, key: u8) {
+        self.keypad[key as usize] = true;
     }
 
     pub fn release_keys(&mut self) {
