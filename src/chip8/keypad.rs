@@ -1,15 +1,24 @@
 pub struct Keypad {
     // There are 16 different keys on the keypad
-    pub keypad: [u8; 16],
+    pub keypad: [bool; 16],
 }
 
 impl Keypad {
     pub fn new() -> Keypad {
-        Keypad { keypad: [0; 16] }
+        Keypad {
+            keypad: [false; 16],
+        }
     }
 
-    pub fn press_key(&mut self, key_location: u16) {
-        self.keypad = [0; 16];
-        self.keypad[key_location as usize] = 1;
+    pub fn press_key(&mut self, key: usize) {
+        self.keypad[key] = true;
+    }
+
+    pub fn release_keys(&mut self) {
+        self.keypad.iter_mut().for_each(|x| *x = false);
+    }
+
+    pub fn is_key_down(&self, key: usize) -> bool {
+        self.keypad[key]
     }
 }
