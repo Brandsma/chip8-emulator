@@ -179,7 +179,7 @@ impl CPU {
             (0x8, _, _, 0x5) => {
                 // Subtract the Vy from Vx
                 self.gp[0xF] = if self.gp[x] > self.gp[y] { 1 } else { 0 };
-                self.gp[x].wrapping_sub(self.gp[y]);
+                self.gp[x] = self.gp[x].wrapping_sub(self.gp[y]);
             }
             (0x8, _, _, 0x6) => {
                 // Subtract the Vy from Vx
@@ -215,12 +215,16 @@ impl CPU {
                 self.gp[x] = thread_rng().gen_range(0, 255) & kk;
             }
             (0xD, _, _, _) => {
+                // reset 0xF register
+                self.gp[0xF] = 0;
+
                 // Set a sprite in the graphics buffer
                 // Get the sprite from memory
                 let mut sprite = vec![0; (self.i..self.i + (n as u16)).len()];
                 for idx in 0..sprite.len() {
                     sprite[idx] = bus.ram.read_byte_from_ram(self.i + (idx as u16));
                 }
+
                 // Draw it
                 self.gp[0xF] =
                     if bus

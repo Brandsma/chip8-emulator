@@ -40,7 +40,7 @@ impl Chip8 {
 }
 
 impl event::EventHandler for Chip8 {
-    fn update(&mut self, ctx: &mut ggez::Context) -> ggez::GameResult {
+    fn update(&mut self, _ctx: &mut ggez::Context) -> ggez::GameResult {
         // Every time run a cpu operation
         self.cpu.process_operation(&mut self.bus);
 
@@ -53,10 +53,10 @@ impl event::EventHandler for Chip8 {
     fn draw(&mut self, ctx: &mut ggez::Context) -> ggez::GameResult {
         graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
 
-        for row in 0..display::HEIGHT {
-            for col in 0..display::WIDTH {
-                if self.bus.display.get_pixel(col, row) == 0x1 {
-                    let color = [1.0, 1.0, 1.0, 1.0].into();
+        for col in 0..display::WIDTH {
+            for row in 0..display::HEIGHT {
+                if self.bus.display.get_pixel(col, row) == 1 {
+                    let color = [0.0, 1.0, 0.3, 1.0].into();
                     let rect = Rect::new_i32(
                         col as i32 * display::PIXEL_SIZE,
                         row as i32 * display::PIXEL_SIZE,
@@ -86,7 +86,7 @@ impl event::EventHandler for Chip8 {
         _repeat: bool,
     ) {
         match get_key(keycode) {
-            Some(x) => self.bus.keypad.keypad[x as usize] = true,
+            Some(x) => self.bus.keypad.press_key(x as usize),
             None => {}
         };
     }

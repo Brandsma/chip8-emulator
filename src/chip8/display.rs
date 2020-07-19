@@ -1,9 +1,10 @@
 pub const WIDTH: usize = 64;
 pub const HEIGHT: usize = 32;
+const DISPLAY_SIZE: usize = WIDTH * HEIGHT;
 pub const PIXEL_SIZE: i32 = 20;
 
 pub struct Display {
-    // Graphics display is 64 by 32 pixels
+    // Graphics gfx is 64 by 32 pixels
     // A pixel is white or black
     // We can put it in a one dimensional array
     pub gfx: [u8; (WIDTH * HEIGHT)],
@@ -21,46 +22,63 @@ impl Display {
         self.gfx.iter_mut().for_each(|x| *x = 0);
     }
 
-    pub fn get_display_buffer(&mut self) -> [u8; (WIDTH * HEIGHT)] {
-        self.gfx
-    }
-
     pub fn get_pixel(&mut self, x: usize, y: usize) -> u8 {
         self.gfx[x + y * WIDTH]
-    }
-
-    fn set_pixel(&mut self, x: usize, y: usize, val: u8) {
-        self.gfx[x + y * WIDTH] = val as u8;
     }
 
     // Draw a sprite to the screen at the given coordinates
     pub fn draw(&mut self, x: usize, y: usize, sprite: &mut [u8]) -> bool {
         let mut has_collided = false;
 
-        // Go over all the rows of the sprite
-        for x_idx in 0..sprite.len() {
-            let cur_row = sprite[x_idx];
-            // Each row has 8 bits worth of data
-            for y_idx in 0..8 {
-                // Iterate over each bit in the row and mask
-                // that specific bit out
-                let new_sprite_value = cur_row >> (7 - y_idx) & 0x01;
+        let line = y * WIDTH;
+        let mut values = vec![0 as u8; 8];
 
-                // Only change things if the new sprite value is 1
-                if new_sprite_value != 1 {
-                    continue;
+        for i in 0..sprite.len() {
+            // Each byte in a sprite draws on one line.
+            let offset = line + WIDTH * i;
+
+            // Organize the bits from the current sprite byte into a slice.
+            for j in 0..values.len() {
+                let bit = (sprite[i] >> j) & 0x01;
+                values[8 - 1 - j] = bit;
+            }
+
+            // Loop through the bits in the current byte and set the gfx
+            // values based on them.
+            for j in 0..values.len() {
+                let value = values[j];
+                let pos: usize = x + j;
+                let mut index: usize;
+
+                // Draw a pixel in the sprite onto the gfx. If the pixel x
+                // position is greater than the width of the gfx, the sprite
+                // wraps around the gfx.
+                if pos >= WIDTH {
+                    // Wrap around to the left side to draw.
+                    index = offset + pos - WIDTH;
+                } else {
+                    // Draw at the current offset.
+                    index = offset + pos;
                 }
 
-                // Get the location of this sprite bit in memory
-                let x_location = (x + x_idx) % WIDTH;
-                let y_location = (y + y_idx) % HEIGHT;
+                if index >= DISPLAY_SIZE {
+                    index -= DISPLAY_SIZE;
+                }
 
-                // Check if that pixel is currently filled
-                let old_sprite_value = self.get_pixel(x_location, y_location);
-                has_collided = old_sprite_value == 1;
+                if index < DISPLAY_SIZE {
+                    // Save the previous state of the pixel before setting it
+                    // for has_collided detection.
+                    let prev = self.gfx[index];
 
-                // Set the pixel and XOR it with the current value
-                self.set_pixel(x_location, y_location, new_sprite_value ^ old_sprite_value);
+                    // Draw the bit to the gfx.
+                    self.gfx[index] = value ^ prev;
+
+                    // Check the previous state of the pixel and check if it
+                    // was erased, if so then there was a sprite has_collided.
+                    if prev == 1 && self.gfx[index] == 0 {
+                        has_collided = true;
+                    }
+                }
             }
         }
 
