@@ -9,8 +9,9 @@ use std::env;
 use ggez;
 use ggez::audio;
 use ggez::event;
+use ggez::GameResult;
 
-fn main() -> ggez::GameResult {
+fn main() -> GameResult {
     // Get the game the player wants to play
     let args: Vec<String> = env::args().collect();
     let game = &args[1];
@@ -20,8 +21,8 @@ fn main() -> ggez::GameResult {
     let width = chip8::display::PIXEL_SIZE as f32 * chip8::display::WIDTH as f32;
     let height = chip8::display::PIXEL_SIZE as f32 * chip8::display::HEIGHT as f32;
 
-    let (ctx, event_loop) =
-        &mut ggez::ContextBuilder::new(&("CHIP-8 ".to_owned() + &args[1]), "Abe")
+    let (mut ctx, event_loop) =
+        ggez::ContextBuilder::new(&("CHIP-8 ".to_owned() + &args[1]), "Abe")
             .window_setup(
                 ggez::conf::WindowSetup::default().title(&("CHIP-8: ".to_owned() + &args[1])),
             )
@@ -34,7 +35,8 @@ fn main() -> ggez::GameResult {
     let mut rom_data = Vec::<u8>::new();
     assert!(file.read_to_end(&mut rom_data).is_ok());
 
-    let audio_file = audio::Source::new(ctx, "/beep.ogg");
+    // Get the audio file from the resources folder
+    let audio_file = audio::Source::new(&mut ctx, "/beep.wav");
 
     // Initialize chip8 VM
     let mut chip8 = Chip8::new(audio_file.unwrap_or_else(|e| {
@@ -48,5 +50,5 @@ fn main() -> ggez::GameResult {
     chip8.load_rom(&mut rom_data);
 
     // Start the chip8 machine
-    event::run(ctx, event_loop, &mut chip8)
+    event::run(ctx, event_loop, chip8)
 }

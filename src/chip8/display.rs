@@ -1,19 +1,19 @@
 pub const WIDTH: usize = 64;
 pub const HEIGHT: usize = 32;
 const DISPLAY_SIZE: usize = WIDTH * HEIGHT;
-pub const PIXEL_SIZE: i32 = 20;
+pub const PIXEL_SIZE: usize = 20;
 
 pub struct Display {
     // Graphics gfx is 64 by 32 pixels
     // A pixel is white or black
     // We can put it in a one dimensional array
-    pub gfx: [u8; (WIDTH * HEIGHT)],
+    pub gfx: [u8; WIDTH * HEIGHT],
 }
 
 impl Display {
     pub fn new() -> Display {
         Display {
-            gfx: [0; (WIDTH * HEIGHT)],
+            gfx: [0; WIDTH * HEIGHT],
         }
     }
 

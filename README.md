@@ -1,5 +1,14 @@
 Chip 8 emulator
 
+## Resources
+
+The emulator requires files from the `resources` folder to be available in `target/debug/resources` at runtime (or `target/release/resources` for release builds). This is handled automatically by the build script (`build.rs`). If you encounter issues with missing resources, manually copy the `resources` folder to `target/debug/`:
+
+```bash
+cp -r resources target/debug/
+```
+
+
 #### Sources
 
 Cowgod's Chip8 technical specification:

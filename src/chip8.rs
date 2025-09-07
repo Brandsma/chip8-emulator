@@ -7,10 +7,9 @@ mod memory;
 use ggez;
 use ggez::audio;
 use ggez::event;
-use ggez::event::KeyCode;
-use ggez::event::KeyMods;
-use ggez::graphics;
-use ggez::graphics::Rect;
+use ggez::input::keyboard::{KeyCode, KeyInput};
+use ggez::graphics::{self, Canvas, Color, DrawParam, Mesh, Rect};
+use ggez::{Context, GameResult};
 
 use bus::Bus;
 use cpu::CPU;
@@ -40,7 +39,7 @@ impl Chip8 {
 }
 
 impl event::EventHandler for Chip8 {
-    fn update(&mut self, _ctx: &mut ggez::Context) -> ggez::GameResult {
+    fn update(&mut self, _ctx: &mut Context) -> GameResult {
         // Every time run a cpu operation
         self.cpu.process_operation(&mut self.bus);
 
@@ -50,46 +49,49 @@ impl event::EventHandler for Chip8 {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut ggez::Context) -> ggez::GameResult {
-        graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
+    fn draw(&mut self, ctx: &mut Context) -> GameResult {
+        let mut canvas = Canvas::from_frame(ctx, Color::BLACK);
 
         for col in 0..display::WIDTH {
             for row in 0..display::HEIGHT {
                 if self.bus.display.get_pixel(col, row) == 1 {
-                    let color = [0.0, 1.0, 0.3, 1.0].into();
-                    let rect = Rect::new_i32(
-                        col as i32 * display::PIXEL_SIZE,
-                        row as i32 * display::PIXEL_SIZE,
-                        display::PIXEL_SIZE,
-                        display::PIXEL_SIZE,
+                    let color = Color::from([0.0, 1.0, 0.3, 1.0]);
+                    let rect = Rect::new(
+                        (col * display::PIXEL_SIZE) as f32,
+                        (row * display::PIXEL_SIZE) as f32,
+                        display::PIXEL_SIZE as f32,
+                        display::PIXEL_SIZE as f32,
                     );
-                    let rectangle = graphics::Mesh::new_rectangle(
+                    let rectangle = Mesh::new_rectangle(
                         ctx,
                         graphics::DrawMode::fill(),
                         rect,
                         color,
                     )?;
-                    graphics::draw(ctx, &rectangle, (ggez::mint::Point2 { x: 0.0, y: 0.0 },))?;
+                    canvas.draw(&rectangle, DrawParam::default());
                 }
             }
         }
 
-        graphics::present(ctx)?;
+        canvas.finish(ctx)?;
         Ok(())
     }
 
     fn key_down_event(
         &mut self,
-        _ctx: &mut ggez::Context,
-        keycode: KeyCode,
-        _keymods: KeyMods,
+        _ctx: &mut Context,
+        input: KeyInput,
         _repeat: bool,
-    ) {
-        self.bus.keypad.press_key(get_key(keycode));
+    ) -> GameResult {
+        if let Some(keycode) = input.keycode {
+            self.bus.keypad.press_key(get_key(keycode));
+        }
+        Ok(())
     }
 
-    fn key_up_event(&mut self, _ctx: &mut ggez::Context, _keycode: KeyCode, _keymods: KeyMods) {
+    fn key_up_event(&mut self, _ctx: &mut Context, _input: KeyInput) -> GameResult {
         self.bus.keypad.release_keys();
+        Ok(())
     }
 }
 
