@@ -31,11 +31,11 @@ pub struct CPU {
     // The current operation: operand
     pub operand: u16,
     // The sound that plays when the dt runs out
-    pub sound: audio::Source,
+    pub sound: Option<audio::Source>,
 }
 
 impl CPU {
-    pub fn new(audio_file: audio::Source) -> CPU {
+    pub fn new(audio_file: Option<audio::Source>) -> CPU {
         CPU {
             gp: [0; 16],
             i: 0,
@@ -55,7 +55,9 @@ impl CPU {
         }
 
         if self.st > 0 {
-            self.sound.play_later()?;
+            if let Some(ref mut sound) = self.sound {
+                sound.play_later()?;
+            }
             self.st -= 1;
         }
 

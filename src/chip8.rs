@@ -20,7 +20,7 @@ pub struct Chip8 {
 }
 
 impl Chip8 {
-    pub fn new(audio_file: audio::Source) -> Chip8 {
+    pub fn new(audio_file: Option<audio::Source>) -> Chip8 {
         Chip8 {
             cpu: CPU::new(audio_file),
             bus: Bus::new(),
